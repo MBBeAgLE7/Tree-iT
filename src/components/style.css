@@ -1,0 +1,12 @@
+.node circle, .node rect {
+	fill: white;
+	display: flex;
+    r:20;
+	stroke: black;
+}
+
+path.link {
+	z-index: 1000;
+	fill: none;
+	stroke: black;
+}
