@@ -8,11 +8,22 @@ import { CgEnter } from 'react-icons/cg';
 export default function Input() {
     const [nodes, setNodes] = useState([]);
     const [treeData, setTreeData] = useState(null);
+    const [rootnode, setroodnode] = useState(null);
     const nodeMap = new Map();
+    const getrootnode = (e) => {
+        setroodnode(e.target.value)
+    }
+    
     const generateTreeData = () => {
         if (nodes.length === 0) {
-            return { name: '', children: [] }; 
+            return { name: null, children: [] }; 
         }
+        nodes.map(node => {
+            if(node.child === rootnode){
+                alert("Root Node have parent. Hence change the inputs!!!!")
+                return;
+            }
+        })
         nodes.forEach(({parent, child}) => {
           if(!nodeMap.has(parent)){
             nodeMap.set(parent, {name : parent, children:[]});
@@ -24,10 +35,14 @@ export default function Input() {
           const childnode = nodeMap.get(child);
           parentnode.children.push(childnode);
         });
-        // nodeMap.forEach(({parent, child}) => {
-        //     // return nodeMap.get(parent);
-        // })
-        return nodeMap.get(nodes[0].parent);
+
+        const rootNode = nodeMap.get(rootnode);
+        if (rootNode) {
+            return rootNode;
+        } else {
+            alert("Root node is not part of the nodes. Please ensure the root node is correct.");
+            return null;
+        }
     };
 
     const addNode = () => {
@@ -40,17 +55,34 @@ export default function Input() {
 
     const updateNodeValue = (id, field, value) => {
         setNodes(nodes.map(node =>
-            node.id === id ? { ...node, [field]: value } : node
+        {
+            if(node.id === id){
+                if(field == 'child' && value == rootnode){
+                    alert("Root Node cannot be a child");
+                    return node;
+                }
+                else return {...node, [field] : value};
+            }
+            else{
+                return node;
+            }
+        }
         ));
     };
 
     const formTree = () => {
-        setTreeData(generateTreeData());
+        if(!rootnode){
+            alert("Enter the root node first")
+        }
+        else{
+            setTreeData(generateTreeData());
+        }
     };
 
     return (
         <div className='input-box flex flex-row justify-center py-24'>
             <div className='input-child-1 w-full h-auto border-2 rounded-5 p-10 m-2 border-gray-700'>
+                <div className='flex-col justify-center pb-10'><span className='flex justify-center pb-5'>Enter the root node</span><span className='flex justify-center'><input className='flex justify-center text-center border-[2px] rounded-[8px] border-gray-600' placeholder='Enter the root' onChange={getrootnode}></input></span></div>
                 <div className='flex justify-around pb-5'>
                     <h2>Parent Node</h2>
                     <h2>Child Node</h2>
@@ -58,14 +90,14 @@ export default function Input() {
                 {nodes.map(node => (
                     <div key={node.id} className='flex justify-between'>
                         <input
-                            className='border p-2 m-2'
+                            className='border-[2px] rounded-[8px] border-gray-600 p-2 m-2'
                             type="text"
                             placeholder="Parent Node"
                             value={node.parent}
                             onChange={(e) => updateNodeValue(node.id, 'parent', e.target.value)}
                         />
                         <input
-                            className='border p-2 m-2'
+                            className='border-[2px] rounded-[8px] border-gray-600 p-2 m-2'
                             type="text"
                             placeholder="Child Node"
                             value={node.child}
